@@ -15,7 +15,23 @@ next_id = 5  # Initially set next available ID
 
 @app.route('/api/posts', methods=['GET'])
 def get_posts():
-    return jsonify(POSTS)
+    sort_by = request.args.get('sort')
+    direction = request.args.get('direction')
+
+    if sort_by and sort_by not in ['title', 'content']:
+        return jsonify({'error': 'Invalid sort field. Use "title" or "content".'}), 400
+
+    if direction and direction not in ['asc', 'desc']:
+        return jsonify({'error': 'Invalid sort direction. Use "asc" or "desc".'}), 400
+
+    sorted_posts = POSTS.copy()
+
+    if sort_by == 'title':
+        sorted_posts.sort(key=lambda post: post['title'], reverse=(direction == 'desc'))
+    elif sort_by == 'content':
+        sorted_posts.sort(key=lambda post: post['content'], reverse=(direction == 'desc'))
+
+    return jsonify(sorted_posts)
 
 
 @app.route('/api/posts', methods=['POST'])
