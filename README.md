@@ -4,11 +4,16 @@
 
 ## Features
 
-- ✏️ Add a new blog post
-- ❌ Delete an existing blog post
-- 🔄 Update an existing blog post
-- 🔍 Search for posts by title or content
-- 🔢 Sort posts based on title or content
+- ✏️ **Add a new blog post**: Users can create new blog posts.
+- ❌ **Delete an existing blog post**: Users can delete their own blog posts.
+- 🔄 **Update an existing blog post**: Users can edit their own blog posts.
+- 🔍 **Search for posts by title or content**: Users can search for posts containing specific keywords.
+- 🔢 **Sort posts based on title or content**: Users can sort posts in ascending or descending order based on title or content.
+
+- 📜 **Pagination** (To be implemented): For blogs with a large number of posts, pagination will be implemented to return a limited number of posts per page.
+- 📊 **Expand Data Model** (Future Enhancement): The data model can be expanded to include additional features like comments, categories, or tags.
+- 🔑 **User Authorization** (Future Enhancement): User registration and login endpoints can be added, allowing only authenticated users to perform certain actions like creating, updating, and deleting posts.
+- ⏳ **Rate Limiting and Versioning** (Future Enhancement): Rate limiting can be implemented to protect the API from abuse, and versioning can be added to plan for future enhancements while maintaining backward compatibility.
 
 ## Usage
 ### Endpoints
