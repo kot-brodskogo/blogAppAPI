@@ -7,8 +7,10 @@ CORS(app)  # This will enable CORS for all routes
 POSTS = [
     {"id": 1, "title": "First post", "content": "This is the first post."},
     {"id": 2, "title": "Second post", "content": "This is the second post."},
+    {"id": 3, "title": "Flask Tutorial", "content": "Learn Flask for web development."},
+    {"id": 4, "title": "Python basics", "content": "Introduction to Python programming language."},
 ]
-next_id = 3  # Initially set next available ID
+next_id = 5  # Initially set next available ID
 
 
 @app.route('/api/posts', methods=['GET'])
@@ -76,6 +78,20 @@ def update_post(post_id):
             }), 200
 
     return jsonify({'error': f'Post with id {post_id} not found.'}), 404
+
+
+@app.route('/api/posts/search', methods=['GET'])
+def search_posts():
+    title_query = request.args.get('title')
+    content_query = request.args.get('content')
+
+    matched_posts = []
+    for post in POSTS:
+        if (not title_query or title_query.lower() in post['title'].lower()) and \
+           (not content_query or content_query.lower() in post['content'].lower()):
+            matched_posts.append(post)
+
+    return jsonify(matched_posts)
 
 
 if __name__ == '__main__':
