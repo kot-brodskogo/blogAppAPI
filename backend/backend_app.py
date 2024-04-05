@@ -19,6 +19,7 @@ def get_posts():
 @app.route('/api/posts', methods=['POST'])
 def add_post():
     global next_id
+    global POSTS
 
     data = request.json
     if not data.get('title') and not data.get('content'):
@@ -42,6 +43,18 @@ def add_post():
     POSTS.append(new_post)
 
     return jsonify(new_post), 201
+
+
+@app.route('/api/posts/<int:post_id>', methods=['DELETE'])
+def delete_post(post_id):
+    global POSTS
+
+    for post in POSTS:
+        if post['id'] == post_id:
+            POSTS.remove(post)
+            return jsonify({'message': f'Post with id {post_id} has been deleted successfully.'}), 200
+
+    return jsonify({'error': f'Post with id {post_id} not found.'}), 404
 
 
 if __name__ == '__main__':
