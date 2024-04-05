@@ -27,8 +27,9 @@ function loadPosts() {
             data.forEach(post => {
                 const postDiv = document.createElement('div');
                 postDiv.className = 'post';
-                postDiv.innerHTML = `<h2>${post.title}</h2><p>${post.content}</p>
-                <button onclick="deletePost(${post.id})">Delete</button>`;
+                postDiv.innerHTML = `<h2>${post.title}</h2><p>${post.author}</p><p>${post.date}</p><p>${post.content}</p>
+                <button class="delete-button" onclick="deletePost(${post.id})">Delete</button>
+                <button class="update-button" onclick="updatePost(${post.id})">Update</button>`; // Add an "Update" button
                 postContainer.appendChild(postDiv);
             });
         })
@@ -40,13 +41,14 @@ function addPost() {
     // Retrieve the values from the input fields
     var baseUrl = document.getElementById('api-base-url').value;
     var postTitle = document.getElementById('post-title').value;
+    var postAuthor = document.getElementById('post-author').value;
     var postContent = document.getElementById('post-content').value;
 
     // Use the Fetch API to send a POST request to the /posts endpoint
     fetch(baseUrl + '/posts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: postTitle, content: postContent })
+        body: JSON.stringify({ title: postTitle, author: postAuthor, content: postContent })
     })
     .then(response => response.json())  // Parse the JSON data from the response
     .then(post => {
@@ -70,3 +72,77 @@ function deletePost(postId) {
     })
     .catch(error => console.error('Error:', error));  // If an error occurs, log it to the console
 }
+
+function updatePost(postId) {
+    // This is a placeholder function, will be implemented
+}
+
+// Function to send a GET request to the API to search for posts by title or content
+function searchPosts() {
+    // Retrieve the base URL from the input field
+    var baseUrl = document.getElementById('api-base-url').value;
+
+    // Retrieve the search query from the input field
+    var searchQuery = document.getElementById('search-query').value;
+
+    // Get selected search types
+    var selectedTypes = [];
+    document.querySelectorAll('input[type="checkbox"]:checked').forEach(checkbox => {
+        selectedTypes.push(checkbox.value);
+    });
+
+    // Construct query URL with multiple search types
+    var queryParams = selectedTypes.map(type => `${type}=${searchQuery}`).join('&');
+    var url = `${baseUrl}/posts/search?${queryParams}`;
+
+    // Use the Fetch API to send a GET request to the /posts/search endpoint with the search query
+    fetch(url)
+        .then(response => response.json())  // Parse the JSON data from the response
+        .then(data => {  // Once the data is ready, we can use it
+            // Clear out the post container first
+            const postContainer = document.getElementById('post-container');
+            postContainer.innerHTML = '';
+
+            // For each post in the response, create a new post element and add it to the page
+            data.forEach(post => {
+                const postDiv = document.createElement('div');
+                postDiv.className = 'post';
+                postDiv.innerHTML = `<h2>${post.title}</h2><p>${post.author}</p><p>${post.date}</p><p>${post.content}</p>
+                <button class="delete-button" onclick="deletePost(${post.id})">Delete</button>
+                <button class="update-button" onclick="updatePost(${post.id})">Update</button>`;
+                postContainer.appendChild(postDiv);
+            });
+        })
+        .catch(error => console.error('Error:', error));  // If an error occurs, log it to the console
+}
+
+// Function to send a GET request to the API to sort posts by a specified field
+function sortPosts() {
+    // Retrieve the base URL from the input field
+    var baseUrl = document.getElementById('api-base-url').value;
+
+    // Retrieve the sort field and direction from the input fields
+    var sortField = document.getElementById('sort-field').value;
+    var sortDirection = document.getElementById('sort-direction').value;
+
+    // Use the Fetch API to send a GET request to the /posts endpoint with the sort parameters
+    fetch(`${baseUrl}/posts?sort=${sortField}&direction=${sortDirection}`)
+        .then(response => response.json())  // Parse the JSON data from the response
+        .then(data => {  // Once the data is ready, we can use it
+            // Clear out the post container first
+            const postContainer = document.getElementById('post-container');
+            postContainer.innerHTML = '';
+
+            // For each post in the response, create a new post element and add it to the page
+            data.forEach(post => {
+                const postDiv = document.createElement('div');
+                postDiv.className = 'post';
+                postDiv.innerHTML = `<h2>${post.title}</h2><p>${post.author}</p><p>${post.date}</p><p>${post.content}</p>
+                <button class="delete-button" onclick="deletePost(${post.id})">Delete</button>
+                <button class="update-button" onclick="updatePost(${post.id})">Update</button>`;
+                postContainer.appendChild(postDiv);
+            });
+        })
+        .catch(error => console.error('Error:', error));  // If an error occurs, log it to the console
+}
+

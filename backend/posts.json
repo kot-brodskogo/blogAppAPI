@@ -1,0 +1,30 @@
+[
+    {
+        "id": 1,
+        "title": "This is the first post.",
+        "content": "This is the first post content.",
+        "author": "Ernesto",
+        "date": "2024-04-02"
+    },
+    {
+        "id": 2,
+        "title": "Second",
+        "content": "This is the second post.",
+        "author": "Julio",
+        "date": "2024-04-05"
+    },
+    {
+        "id": 3,
+        "title": "This Third post.",
+        "content": "This is the third post.",
+        "author": "Thomas",
+        "date": "2024-04-03"
+    },
+    {
+        "id": 5,
+        "title": "Lets say",
+        "content": "Blah blah blah",
+        "author": "Someone",
+        "date": "2024-04-05"
+    }
+]

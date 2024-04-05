@@ -1,17 +1,29 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from datetime import date
+import json
 
 app = Flask(__name__)
 CORS(app)  # This will enable CORS for all routes
 
-POSTS = [
-    {"id": 1, "title": "First post", "content": "This is the first post.", "author": "Your Name", "date": "2023-06-07"},
-    {"id": 2, "title": "Second post", "content": "This is the second post.", "author": "Your Name", "date": "2023-06-07"},
-    {"id": 3, "title": "Flask Tutorial", "content": "Learn Flask for web development.", "author": "Your Name", "date": "2023-06-07"},
-    {"id": 4, "title": "Python basics", "content": "Introduction to Python programming language.", "author": "Your Name", "date": "2023-06-07"},
-]
-next_id = 5  # Initially set next available ID
+POSTS_FILE = "posts.json"
+
+
+# Function to read posts from the JSON file
+def read_posts():
+    try:
+        with open(POSTS_FILE, "r") as file:
+            posts = json.load(file)
+    except FileNotFoundError:
+        # If the file does not exist, return an empty list
+        posts = []
+    return posts
+
+
+# Function to write posts to the JSON file
+def write_posts(posts):
+    with open(POSTS_FILE, "w") as file:
+        json.dump(posts, file, indent=4)
 
 
 @app.route('/api/posts', methods=['GET'])
@@ -25,7 +37,7 @@ def get_posts():
     if direction and direction not in ['asc', 'desc']:
         return jsonify({'error': 'Invalid sort direction. Use "asc" or "desc".'}), 400
 
-    sorted_posts = POSTS.copy()
+    sorted_posts = read_posts().copy()
 
     if sort_by == 'title':
         sorted_posts.sort(key=lambda post: post['title'], reverse=(direction == 'desc'))
@@ -41,10 +53,8 @@ def get_posts():
 
 @app.route('/api/posts', methods=['POST'])
 def add_post():
-    global next_id
-    global POSTS
-
     data = request.json
+
     if not data.get('title') and not data.get('content') and not data.get('author'):
         return jsonify({'error': 'Both title, content and author are required'}), 400
     elif not data.get('title').strip():
@@ -54,33 +64,37 @@ def add_post():
     elif not data.get('author').strip():
         return jsonify({'error': 'Author cannot be empty.'}), 400
 
-    title = data['title']
-    content = data['content']
-    author = data['author']
+    # If all checks pass, proceed to add the post
+    posts = read_posts()
     today = date.today().strftime("%Y-%m-%d")
-    post_id = next_id
-    next_id += 1
+    # Generate a unique index for the new post
+    if posts:
+        new_index = max(post['id'] for post in posts) + 1
+    else:
+        new_index = 1
 
     new_post = {
-        'id': post_id,
-        'title': title,
-        'content': content,
-        'author': author,
+        'id': new_index,
+        'title': data['title'],
+        'content': data['content'],
+        'author': data['author'],
         'date': today
     }
 
-    POSTS.append(new_post)
+    posts.append(new_post)
+    write_posts(posts)
 
     return jsonify(new_post), 201
 
 
 @app.route('/api/posts/<int:post_id>', methods=['DELETE'])
 def delete_post(post_id):
-    global POSTS
+    posts = read_posts()
 
-    for post in POSTS:
+    for post in posts:
         if post['id'] == post_id:
-            POSTS.remove(post)
+            posts.remove(post)
+            write_posts(posts)
             return jsonify({'message': f'Post with id {post_id} has been deleted successfully.'}), 200
 
     return jsonify({'error': f'Post with id {post_id} not found.'}), 404
@@ -88,11 +102,10 @@ def delete_post(post_id):
 
 @app.route('/api/posts/<int:post_id>', methods=['PUT'])
 def update_post(post_id):
-    global POSTS
-
     data = request.json
+    posts = read_posts()
 
-    for post in POSTS:
+    for post in posts:
         if post['id'] == post_id:
             if 'title' in data:
                 post['title'] = data['title']
@@ -102,6 +115,10 @@ def update_post(post_id):
                 post['author'] = data['author']
             if 'date' in data:
                 post['date'] = data['date']
+
+            # Update the JSON file with the modified posts
+            write_posts(posts)
+
             return jsonify({
                 'id': post_id,
                 'title': post['title'],
@@ -115,13 +132,14 @@ def update_post(post_id):
 
 @app.route('/api/posts/search', methods=['GET'])
 def search_posts():
+    posts = read_posts()
     title_query = request.args.get('title')
     content_query = request.args.get('content')
     author_query = request.args.get('author')
     date_query = request.args.get('date')
 
     matched_posts = []
-    for post in POSTS:
+    for post in posts:
         if (not title_query or title_query.lower() in post['title'].lower()) and \
            (not content_query or content_query.lower() in post['content'].lower()) and \
            (not author_query or author_query.lower() in post['author'].lower()) and \
